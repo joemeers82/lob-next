@@ -51,7 +51,7 @@ const Carousel = () => {
                 alt={slide.alt}
                 width={400}
                 height={400}
-                className="w-full min-w-[120px]"
+                className="w-full min-w-[160px]"
               />
             </div>
           ))}

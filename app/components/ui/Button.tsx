@@ -1,17 +1,38 @@
-import { ButtonHTMLAttributes, ReactNode } from "react";
+import { ButtonHTMLAttributes, AnchorHTMLAttributes, ReactNode } from "react";
+import Link from "next/link";
 
-type ButtonVariant = "primary" | "secondary" | "text-only";
+type ButtonVariant = "primary" | "secondary" | "text-only" | "outline";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+// Base props shared by both button and anchor
+interface BaseButtonProps {
   variant?: ButtonVariant;
-  children: ReactNode;
   className?: string;
+  children: ReactNode;
 }
+
+// Props specific to button
+interface ButtonElementProps extends BaseButtonProps {
+  href?: never; // Explicitly disallow href
+  onClick?: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
+  type?: ButtonHTMLAttributes<HTMLButtonElement>["type"];
+  disabled?: ButtonHTMLAttributes<HTMLButtonElement>["disabled"];
+}
+
+// Props specific to anchor
+interface AnchorElementProps extends BaseButtonProps {
+  href: string;
+  onClick?: AnchorHTMLAttributes<HTMLAnchorElement>["onClick"];
+  target?: AnchorHTMLAttributes<HTMLAnchorElement>["target"];
+  rel?: AnchorHTMLAttributes<HTMLAnchorElement>["rel"];
+}
+
+// Union type for Button component props
+type ButtonProps = ButtonElementProps | AnchorElementProps;
 
 export default function Button({
   variant = "primary",
-  children,
   className = "",
+  children,
   ...props
 }: ButtonProps) {
   const variants = {
@@ -29,7 +50,7 @@ export default function Button({
     `,
     secondary: `
       border border-primary-accent-yellow-100
-      bg-primary-accent-yellow-100 text-secondary-key
+      bg-yellow-100 text-secondary-key
       rounded
       flex justify-center items-center
       w-fit
@@ -56,10 +77,58 @@ export default function Button({
       hover:after:translate-x-1
       hover:text-primary-indigo-shade
     `,
+    outline: `
+      border border-black
+      bg-transparent text-black
+      rounded
+      flex justify-center items-center
+      w-fit
+      px-8 py-4
+      text-base font-medium
+      leading-[130%]
+      transition-all duration-200 ease-in-out
+      hover:bg-gray-50
+    `,
   };
 
+  const baseClass = `${variants[variant]} ${className}`;
+
+  // Check if href exists to determine if it's an anchor
+  if ("href" in props && props.href) {
+    const { href, onClick, target, rel } = props as AnchorElementProps;
+    const isExternal = href.startsWith("http") || href.startsWith("//");
+
+    if (isExternal) {
+      return (
+        <a
+          href={href}
+          className={baseClass}
+          onClick={onClick}
+          target={target || "_blank"}
+          rel={rel || "noopener noreferrer"}
+        >
+          {children}
+        </a>
+      );
+    }
+
+    return (
+      <Link href={href} className={baseClass} onClick={onClick} target={target} rel={rel}>
+        {children}
+      </Link>
+    );
+  }
+
+  // Render as a button if no href
+  const { onClick, type, disabled } = props as ButtonElementProps;
+
   return (
-    <button className={`${variants[variant]} ${className}`} {...props}>
+    <button
+      className={baseClass}
+      onClick={onClick}
+      type={type || "button"}
+      disabled={disabled}
+    >
       {children}
     </button>
   );
