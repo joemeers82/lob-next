@@ -1,7 +1,7 @@
 // app/blog/[blog]/page.tsx
 import { fetchSanityData } from '../../../lib/sanity.client';
 
-// Define the type for our blog post
+
 interface BlogPost {
   title: string;
   slug: { current: string };
@@ -16,7 +16,7 @@ interface BlogPost {
   metaDescription?: string;
 }
 
-// This component handles the actual rendering
+
 export default async function Blog({ params }: { params: { blog: string } }) {
   const slug = params.blog;
   console.log(`Attempting to fetch blog post with slug: ${slug}`);
