@@ -83,8 +83,8 @@ export default function Button({
       rounded
       flex justify-center items-center
       w-fit
-      px-8 py-4
-      text-base font-medium
+      px-6 py-3
+      text-sm font-semibold
       leading-[130%]
       transition-all duration-200 ease-in-out
       hover:bg-gray-50

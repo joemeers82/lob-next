@@ -28,6 +28,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "tailwind.colors.js"
-  ],
+, "app/blog/[blog]"  ],
   "exclude": ["node_modules"]
 }
