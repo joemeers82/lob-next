@@ -1,6 +1,5 @@
 // app/blog/[blog]/page.tsx
 import { fetchSanityData } from '../../../lib/sanity.client';
-import { draftMode } from 'next/headers';
 
 // Define the type for our blog post
 interface BlogPost {
@@ -13,9 +12,8 @@ interface BlogPost {
       _ref: string;
     };
   };
-  body: any[];
+  body: Array<{ _type: string; [key: string]: unknown }>; // Replace any[] with a more specific type
   metaDescription?: string;
-  // Add other fields as needed from your schema
 }
 
 // This component handles the actual rendering
