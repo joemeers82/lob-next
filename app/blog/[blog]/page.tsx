@@ -2,14 +2,6 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { fetchSanityData } from '../../../lib/sanity.client';
 
-// Define the correct props type for a Next.js App Router page component
-type BlogPageProps = {
-  params: {
-    blog: string;
-  };
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
-
 // Define your blog post type
 interface BlogPost {
   _id: string;
@@ -17,14 +9,16 @@ interface BlogPost {
   slug: {
     current: string;
   };
-  content: any; // You might want to use a more specific type here
-  // Add other fields as needed
+  content: any; // Adjust as needed for your content
 }
 
-// This is an async Server Component
-export default async function BlogPage({ params }: BlogPageProps) {
-  const slug = params.blog;
-  
+export default async function BlogPage({
+  params,
+}: {
+  params: { blog: string };
+}) {
+  const { blog: slug } = params;
+
   // Fetch the blog post data from Sanity
   const post = await fetchSanityData<BlogPost | null>(
     `*[_type == "blog" && slug.current == $slug][0]`,
@@ -40,30 +34,36 @@ export default async function BlogPage({ params }: BlogPageProps) {
     <main className="container mx-auto px-4 py-8">
       <article>
         <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-        {/* Render your blog content here */}
-        <div>{/* Render your content - you might use a serializer like Portable Text */}</div>
+        {/* Render your blog content here, e.g. Portable Text */}
+        <div>{/* ...post.content... */}</div>
       </article>
     </main>
   );
 }
 
-// Generate metadata for the page
-export async function generateMetadata({ params }: BlogPageProps): Promise<Metadata> {
-  const slug = params.blog;
+export async function generateMetadata({
+  params,
+}: {
+  params: { blog: string };
+}): Promise<Metadata> {
+  const { blog: slug } = params;
   
+  // Fetch the blog post data from Sanity
   const post = await fetchSanityData<BlogPost | null>(
     `*[_type == "blog" && slug.current == $slug][0]`,
     { slug }
   );
 
+  // If no post is found, return a fallback
   if (!post) {
     return {
       title: 'Post Not Found',
     };
   }
 
+  // Otherwise, build your metadata
   return {
     title: post.title,
-    // Add more metadata as needed
+    // Add additional SEO fields as needed
   };
 }
