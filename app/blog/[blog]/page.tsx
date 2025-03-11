@@ -12,12 +12,15 @@ interface BlogPost {
   content: unknown; // Adjust as needed for your content
 }
 
+type PageParams = Promise<{ blog: string }>;
+
 export default async function BlogPage({
   params,
 }: {
-  params: { blog: string };
+  params: PageParams;
 }) {
-  const { blog: slug } = params;
+  const resolvedParams = await params;
+  const { blog: slug } = resolvedParams;
 
   // Fetch the blog post data from Sanity
   const post = await fetchSanityData<BlogPost | null>(
@@ -44,9 +47,10 @@ export default async function BlogPage({
 export async function generateMetadata({
   params,
 }: {
-  params: { blog: string };
+  params: PageParams;
 }): Promise<Metadata> {
-  const { blog: slug } = params;
+  const resolvedParams = await params;
+  const { blog: slug } = resolvedParams;
   
   // Fetch the blog post data from Sanity
   const post = await fetchSanityData<BlogPost | null>(
