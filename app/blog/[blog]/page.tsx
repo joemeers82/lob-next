@@ -9,7 +9,7 @@ interface BlogPost {
   slug: {
     current: string;
   };
-  content: any; // Adjust as needed for your content
+  content: unknown; // Adjust as needed for your content
 }
 
 export default async function BlogPage({
