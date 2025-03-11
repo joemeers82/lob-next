@@ -1,43 +1,43 @@
 // lib/sanity.client.ts
 import { createClient } from "next-sanity";
+
 // Environment variables
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "ieuhyvha";
-const dataset = "production";
+const dataset = "production"; // Always use production dataset
 const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2023-05-03";
+
+// Determine if we should use local Sanity Studio
 const isLocalDevelopment = process.env.NODE_ENV === "development";
-// Sanity client
+
+// Create the Sanity client
 export const sanityClient = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: !isLocalDevelopment,
+  useCdn: !isLocalDevelopment, // Use CDN in production, direct in development
 });
-// Define a base type for Sanity data (customize based on your schema)
-interface SanityData {
-  _id?: string;
-  _type?: string;
-  _createdAt?: string;
-  _updatedAt?: string;
-  [key: string]: unknown; // Fallback for unknown fields using 'unknown' instead of 'any'
-}
-// Fetch data with explicit generic type
-export async function fetchSanityData<T = SanityData>(
+
+// Helper function to fetch data with better error handling
+export async function fetchSanityData<T>(
   query: string,
-  params: Record<string, unknown> = {} // Using 'unknown' instead of 'any'
+  // Use `unknown` so TypeScript doesn't let you do anything unsafe by default
+  params: Record<string, unknown> = {}
 ): Promise<T> {
   try {
     const env = isLocalDevelopment ? "LOCAL" : "PRODUCTION";
     console.log(`Fetching from ${env} Sanity instance`);
     console.log(`Query: ${query}`);
     console.log(`Params:`, params);
+
+    // Always use the Sanity client
     const result = await sanityClient.fetch<T>(query, params);
-    if (!result) {
-      throw new Error("No data returned from Sanity");
-    }
+
     return result;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error("Error fetching Sanity data:", errorMessage);
-    throw new Error(`Failed to fetch Sanity data: ${errorMessage}`);
+    console.error(
+      "Error fetching Sanity data:",
+      error instanceof Error ? error.message : String(error)
+    );
+    throw error;
   }
 }
